@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>北海道内 道の駅情報</title>
+  <style>
+    * { box-sizing: border-box; font-family: sans-serif; font-size: 12px; }
+    body { margin: 0; padding: 10px; background-color: #f4f6f9; color: #333; }
+    
+    h1 { text-align: center; font-size: 24px; margin: 10px 0 20px; color: #1f3f6d; font-weight: bold; }
+
+    /* 基本ボタン */
+    .btn {
+      background: #FF3300; color: #fff; border: none; padding: 10px; width: 100%;
+      border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: background 0.2s;
+    }
+    .btn:hover { background: #cc2900; }
+    
+    .btn-sub {
+      background: #2b5797; color: #fff; border: none; padding: 8px 12px;
+      border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
+    }
+    .btn-sub:hover { background: #1f3f6d; }
+
+    /* 選択肢入れ替え用小型ボタン */
+    .btn-move {
+      background: #2b5797; color: #fff; border: none; border-radius: 3px;
+      padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: bold;
+    }
+    .btn-move:hover { background: #1f3f6d; }
+    .btn-move-placeholder { width: 28px; display: inline-block; }
+
+    /* ボタン3つを均等配置（3等分）するコンテナ */
+    .button-row-3 {
+      display: flex; gap: 10px; width: 100%; margin: 10px 0;
+    }
+
+    /* 3等分用共通ボタンデザイン */
+    .btn-unified {
+      flex: 1; padding: 12px 8px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: bold; color: #ffffff; cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      box-sizing: border-box;
+    }
+
+    .btn-unified:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); }
+    .btn-unified:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+
+    /* 個別カラー設定 */
+    .btn-orange { background-color: #ff8c00; }
+    .btn-green  { background-color: #008000; }
+    .btn-pink   { background-color: #ff66cc; }
+
+    .selector-box {
+      background: #fff; border: 1px solid #b0c4de; padding: 15px; border-radius: 6px;
+      max-width: 650px; margin: 0 auto 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .selector-box h3 { margin: 0 0 12px; font-size: 14px; text-align: center; color: #2b5797; }
+    
+    .select-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+    .select-row {
+      display: flex; align-items: center; gap: 6px;
+      background: #f0f4f8; padding: 6px 8px; border-radius: 4px; border: 1px solid #dcdcdc;
+    }
+    .select-row .num { font-weight: bold; width: 20px; color: #2b5797; }
+    .select-row select { padding: 5px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
+
+    .btn-row { display: flex; gap: 10px; }
+
+    /* 画面上の件数表示バナー */
+    .result-count-bar {
+      max-width: 650px; margin: 15px auto 15px; font-size: 14px; font-weight: bold;
+      color: #1f3f6d; background: #e6f2ff; padding: 8px 12px; border-radius: 4px;
+      border-left: 5px solid #2b5797; text-align: left; display: none;
+    }
+
+    .cards-container { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+    .station-block { width: 100%; max-width: 650px; }
+
+    .st-table {
+      width: 100%; border-collapse: collapse; background: #fff; border: 2px solid #000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .st-table td, .st-table th {
+      border: 1px solid #000; font-size: 11px; padding: 0; vertical-align: middle; height: 28px;
+    }
+    
+    .cat-blue {
+      background-color: #0070c0; color: #fff; font-weight: bold;
+      text-align: center; width: 14%; white-space: nowrap; font-size: 12px;
+    }
+    .lbl-basic { background-color: #00b0f0; color: #000; font-weight: bold; text-align: center; }
+    .sub-hdr-blue {
+      background-color: #8EA9DB; color: #000; font-weight: bold;
+      text-align: center; display: flex; align-items: center; justify-content: center; height: 100%;
+    }
+    .sub-lbl {
+      background-color: #d9e1f2; font-weight: normal; text-align: center;
+      padding: 0 2px; height: 100%; display: flex; align-items: center; justify-content: center;
+      border-right: 1px solid #000; flex-shrink: 0;
+    }
+    .val-cell {
+      text-align: center; background-color: #fff; padding: 0 2px;
+      display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;
+    }
+    .inner-row { display: flex; width: 100%; height: 100%; align-items: center; }
+    .cell-unit { display: flex; align-items: center; height: 100%; border-right: 1px solid #000; }
+    .cell-unit:last-child { border-right: none; }
+
+    /* ナビゲーション起動用リンクスタイル */
+    .nav-link {
+      color: #1f3f6d; text-decoration: underline; cursor: pointer; font-weight: bold;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .nav-link:hover { color: #FF3300; }
+
+    /* モーダル共通 */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #fff; border-radius: 8px; padding: 20px; width: 90%; max-width: 550px;
+      max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2b5797; padding-bottom: 8px; margin-bottom: 10px; }
+    .modal-header h2 { margin: 0; font-size: 16px; color: #1f3f6d; }
+    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
+    .close-btn:hover { color: #000; }
+
+    .modal-count-box {
+      background-color: #e6f2ff; border: 1px solid #b0c4de; padding: 8px 12px;
+      border-radius: 4px; font-size: 13px; font-weight: bold; color: #1f3f6d;
+      margin-bottom: 15px; text-align: center;
+    }
+    .modal-count-box span { color: #FF3300; font-size: 16px; margin: 0 2px; }
+
+    /* 地図モーダル専用サイズ調整 */
+    .area-map-modal-content {
+      max-width: 700px !important;
+      width: 95% !important;
+    }
+
+    /* エリア選択タブの横スクロールコンテナ */
+    .area-tab-container {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px;
+      margin-top: 5px; border-bottom: 1px solid #ddd;
+    }
+
+    .area-tab-btn {
+      background: #f0f4f8; border: 1px solid #b0c4de; border-radius: 16px;
+      padding: 6px 14px; font-size: 13px; font-weight: bold; color: #1f3f6d;
+      cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+
+    .area-tab-btn.active {
+      background: #2b5797; color: #ffffff; border-color: #2b5797;
+    }
+
+    /* ピンの吹き出し（ポップアップ）用デザイン */
+    .leaflet-popup-content { font-family: sans-serif; line-height: 1.4; font-size: 13px; }
+    .popup-title { font-weight: bold; color: #1f3f6d; font-size: 14px; margin-bottom: 4px; }
+    .popup-nav-btn {
+      display: inline-block; margin-top: 6px; padding: 4px 10px;
+      background: #008000; color: #fff !important; text-decoration: none;
+      border-radius: 4px; font-size: 12px; font-weight: bold;
+    }
+
+    .search-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #e0e0e0; }
+    .search-item label.title { font-weight: bold; color: #2b5797; display: block; margin-bottom: 5px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .checkbox-group label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .search-input, .search-select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+  </style>
+  <!-- Leaflet.js (無料の地図ライブラリ) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+  <h1>北海道内 道の駅情報</h1>
+
+  <!-- 選び直しボタン -->
+  <div id="reopenBtn" style="display: none; max-width: 650px; margin: 0 auto 15px;">
+    <button class="btn" onclick="toggleSelector(true)">🔍 選び直す（検索画面を開く）</button>
+  </div>
+
+  <!-- メイン選択エリア -->
+  <div class="selector-box" id="selectorBox">
+    <h3>表示したい道の駅を選択 (最大5つ)</h3>
+    <div class="select-group">
+      <script>
+        for(let i=1; i<=5; i++){
+          document.write(`
+            <div class="select-row" id="row_container_${i}">
+              <span class="num">${i}.</span>
+              <select class="area-select" id="area${i}" style="flex: 1;" onchange="updateStationOptions(${i})">
+                <option value="" disabled selected hidden>エリア選択</option>
+              </select>
+              <select class="station-select" id="station${i}" style="flex: 1.5;">
+                <option value="" disabled selected hidden>駅名選択</option>
+              </select>
+              <div style="display: flex; gap: 3px; margin-left: auto;">
+                ${i > 1 ? `<button class="btn-move" onclick="swapRows(${i},${i-1})" title="上に移動">▲</button>` : `<span class="btn-move-placeholder"></span>`}
+                ${i < 5 ? `<button class="btn-move" onclick="swapRows(${i},${i+1})" title="下に移動">▼</button>` : `<span class="btn-move-placeholder"></span>`}
+              </div>
+            </div>
+          `);
+        }
+      </script>
+    </div>
+    
+    <!-- 検索ボタン群 -->
+    <div class="btn-row" style="margin-bottom: 8px;">
+      <button class="btn" style="flex: 2;" onclick="renderView()">選択した道の駅を表示</button>
+      <button class="btn-sub" style="flex: 1;" onclick="openModal()">🔍 詳細検索</button>
+    </div>
+    <div class="button-row-3">
+      <button type="button" class="btn-unified btn-orange" onclick="openMultiRoute()">
+        🚗 連続道順表示
+      </button>
+      <button type="button" class="btn-unified btn-green" onclick="showNearbyStations()">
+        📍 近い5件を表示
+      </button>
+      <button type="button" class="btn-unified btn-pink" onclick="openAreaMap()">
+        🗺️ エリア全体地図を表示
+      </button>
+    </div>
+  </div>
+
+  <!-- エリア地図表示モーダル -->
+  <div id="areaMapModal" class="modal-overlay" onclick="closeAreaMapModal(event)">
+    <div class="modal-content area-map-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="areaMapTitle">🗺️ エリアマップ</h2>
+        <button type="button" class="close-btn" onclick="closeAreaMapModal()">&times;</button>
+      </div>
+      
+      <!-- エリア切替タブ -->
+      <div id="areaTabContainer" class="area-tab-container"></div>
+
+      <!-- Leaflet地図埋め込み枠 -->
+      <div id="leafletMap" style="width: 100%; height: 420px; border-radius: 8px; margin-top: 10px;"></div>
+    </div>
+  </div>
+
+  <!-- 結果件数表示枠 (画面上) -->
+  <div id="resultCountBar" class="result-count-bar"></div>
+
+  <!-- 表示領域 -->
+  <div id="cardsContainer" class="cards-container">
+    <p style="text-align:center; width:100%; color:#666;">道の駅を選択して表示ボタンを押すか、詳細検索をご利用ください。</p>
+  </div>
+
+  <!-- 詳細検索モーダル -->
+  <div class="modal-overlay" id="searchModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>詳細条件検索</h2>
+        <button class="close-btn" onclick="closeModal()">×</button>
+      </div>
+
+      <div class="modal-count-box">
+        該当する道の駅：<span id="modalMatchCount">0</span> 件
+      </div>
+
+      <!-- 1. エリア選択 -->
+      <div class="search-item">
+        <label class="title">エリア指定</label>
+        <select id="sel_modal_area" class="search-select" onchange="updateRealtimeCount()">
+          <option value="">すべて（全エリア）</option>
+        </select>
+      </div>
+
+      <!-- 2. スタンプ検索 -->
+      <div class="search-item">
+        <label class="title">スタンプ検索</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="chk_stamp_24h" onchange="updateRealtimeCount()"> 24時間押印可能 (24H)</label>
+        </div>
+      </div>
+
+      <!-- 3. 定休日検索 -->
+      <div class="search-item">
+        <label class="title">定休日検索（指定曜日に休みの駅）</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" class="chk-day" value="月" onchange="updateRealtimeCount()"> 月</label>
+          <label><input type="checkbox" class="chk-day" value="火" onchange="updateRealtimeCount()"> 火</label>
+          <label><input type="checkbox" class="chk-day" value="水" onchange="updateRealtimeCount()"> 水</label>
+          <label><input type="checkbox" class="chk-day" value="木" onchange="updateRealtimeCount()"> 木</label>
+          <label><input type="checkbox" class="chk-day" value="金" onchange="updateRealtimeCount()"> 金</label>
+        </div>
+      </div>
+
+      <!-- 4. 食事検索 -->
+      <div class="search-item">
+        <label class="title">食事検索 (施設あり)</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="chk_meal_inside" onchange="updateRealtimeCount()"> 内食堂あり</label>
+          <label><input type="checkbox" id="chk_meal_court" onchange="updateRealtimeCount()"> 内コートあり</label>
+          <label><input type="checkbox" id="chk_meal_outside" onchange="updateRealtimeCount()"> 外食堂あり</label>
+        </div>
+      </div>
+
+      <!-- 5. 物産店検索 -->
+      <div class="search-item">
+        <label class="title">物産店検索</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="chk_shop_large" onchange="updateRealtimeCount()"> 物産店「大」</label>
+        </div>
+      </div>
+
+      <!-- 6. 案内所検索 -->
+      <div class="search-item">
+        <label class="title">案内所検索</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="chk_info_desk" onchange="updateRealtimeCount()"> 案内所あり (〇)</label>
+        </div>
+      </div>
+
+      <!-- 7. キッズエリア検索 -->
+      <div class="search-item">
+        <label class="title">キッズエリア検索</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="chk_kids_area" onchange="updateRealtimeCount()"> キッズエリアあり (◎・〇)</label>
+        </div>
+      </div>
+
+      <!-- 8. 付属施設検索 -->
+      <div class="search-item">
+        <label class="title">付属施設検索 (〇あり)</label>
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="chk_att_hotel" onchange="updateRealtimeCount()"> ホテル</label>
+          <label><input type="checkbox" id="chk_att_park" onchange="updateRealtimeCount()"> 公園</label>
+          <label><input type="checkbox" id="chk_att_golf" onchange="updateRealtimeCount()"> パークゴルフ</label>
+          <label><input type="checkbox" id="chk_att_dog" onchange="updateRealtimeCount()"> ドッグラン</label>
+        </div>
+      </div>
+
+      <!-- 9. その他キーワード検索 -->
+      <div class="search-item">
+        <label class="title">その他キーワード検索</label>
+        <input type="text" id="txt_other_kw" class="search-input" placeholder="例: 海水浴場、温泉、駅隣接など" oninput="updateRealtimeCount()">
+      </div>
+
+      <button class="btn" style="margin-top: 15px;" onclick="execAdvancedSearch()">この条件で検索して表示</button>
+    </div>
+  </div>
+
+  <script src="michinoeki_data.js"></script>
+
+  <script>
+    // Google Mapsで「緯度経度(道の駅 名)」だとエラーになる例外駅リスト
+    const fallbackStations = [
+      "江差", "上ノ国もんじゅ", "横綱の里・ふくしま", "横綱の里ふくしま", "夕張メロード",
+      "サーモンパーク千歳", "だて歴史の杜", "275つきがた", "うたしないチロルの湯",
+      "南ふらの", "びえい「丘のくら」", "てしお", "るもい",
+      "サロマ湖", "おうむ", "遠軽 森のオホーツク", "遠軽\u3000森のオホーツク", "摩周温泉", "しかおい"
+    ];
+
+    let rawData = typeof stationData !== 'undefined' ? stationData : [];
+    let areas = [];
+
+    function initData() {
+      fetch('michinoeki_data.json?v=' + new Date().getTime())
+        .then(res => res.json())
+        .then(json => {
+          rawData = json.filter(item => item.name && item.name !== "道の駅名");
+          setupSelector();
+        })
+        .catch(() => {
+          if (typeof stationData !== 'undefined') {
+            rawData = stationData.filter(item => item.name && item.name !== "道の駅名");
+            setupSelector();
+          } else {
+            document.getElementById('cardsContainer').innerHTML = '<p style="color:red; text-align:center;">データの読み込みに失敗しました。</p>';
+          }
+        });
+    }
+
+    function setupSelector() {
+      areas = Array.from(new Set(rawData.map(s => s.area))).filter(Boolean);
+      
+      for (let i = 1; i <= 5; i++) {
+        const areaSel = document.getElementById(`area${i}`);
+        areaSel.innerHTML = '<option value="" disabled selected hidden>エリア選択</option>';
+        areas.forEach(area => {
+          const opt = document.createElement('option');
+          opt.value = area;
+          opt.textContent = area;
+          areaSel.appendChild(opt);
+        });
+      }
+
+      const modalAreaSel = document.getElementById('sel_modal_area');
+      modalAreaSel.innerHTML = '<option value="">すべて（全エリア）</option>';
+      areas.forEach(area => {
+        const opt = document.createElement('option');
+        opt.value = area;
+        opt.textContent = area;
+        modalAreaSel.appendChild(opt);
+      });
+    }
+
+    function updateStationOptions(index) {
+      const areaVal = document.getElementById(`area${index}`).value;
+      const stSel = document.getElementById(`station${index}`);
+      stSel.innerHTML = '<option value="" disabled selected hidden>駅名選択</option>';
+
+      if (!areaVal) return;
+
+      const filtered = rawData.filter(s => s.area === areaVal);
+      filtered.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.name;
+        stSel.appendChild(opt);
+      });
+    }
+
+    function fmt(val) {
+      return (val !== undefined && val !== null && val !== "") ? val : '－';
+    }
+
+    /* 単品ナビ起動関数（例外自動判別版） */
+    function openNav(name, locationObj, city) {
+      if (!name || name === '－') return;
+      
+      const displayName = name.includes('道の駅') ? name : `道の駅 ${name}`;
+
+      const isFallback = fallbackStations.some(fb => 
+        name.replace(/[\s\u3000]+/g, '') === fb.replace(/[\s\u3000]+/g, '')
+      );
+
+      let url = "";
+      if (!isFallback && locationObj && locationObj.lat && locationObj.lng) {
+        const lat = String(locationObj.lat).trim();
+        const lng = String(locationObj.lng).trim();
+        const destStr = `${lat},${lng}(${encodeURIComponent(displayName)})`;
+        url = `https://www.google.com/maps/dir/?api=1&destination=${destStr}`;
+      } else {
+        const query = encodeURIComponent(`${displayName} ${city || ''}`);
+        url = `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+      }
+      window.open(url, '_blank');
+    }
+
+    function toggleSelector(show) {
+      document.getElementById('selectorBox').style.display = show ? 'block' : 'none';
+      document.getElementById('reopenBtn').style.display = show ? 'none' : 'block';
+    }
+
+    function openModal() {
+      document.getElementById('searchModal').style.display = 'flex';
+      updateRealtimeCount();
+    }
+    function closeModal() { document.getElementById('searchModal').style.display = 'none'; }
+
+    function filterAdvancedData() {
+      const modalArea = document.getElementById('sel_modal_area').value;
+      const stamp24h = document.getElementById('chk_stamp_24h').checked;
+      const selectedDays = Array.from(document.querySelectorAll('.chk-day:checked')).map(cb => cb.value);
+      
+      const mealInside = document.getElementById('chk_meal_inside').checked;
+      const mealCourt = document.getElementById('chk_meal_court').checked;
+      const mealOutside = document.getElementById('chk_meal_outside').checked;
+      
+      const shopLarge = document.getElementById('chk_shop_large').checked;
+      const infoDesk = document.getElementById('chk_info_desk').checked;
+      const kidsArea = document.getElementById('chk_kids_area').checked;
+      
+      const attHotel = document.getElementById('chk_att_hotel').checked;
+      const attPark = document.getElementById('chk_att_park').checked;
+      const attGolf = document.getElementById('chk_att_golf').checked;
+      const attDog = document.getElementById('chk_att_dog').checked;
+      
+      const otherKw = document.getElementById('txt_other_kw').value.trim();
+
+      const hasValue = (v) => v && v !== '－' && v !== '×' && v !== '0' && v !== '-' && v !== '';
+
+      return rawData.filter(st => {
+        if (modalArea && st.area !== modalArea) return false;
+        if (stamp24h && !st.info?.stamp?.includes('24H')) return false;
+
+        if (selectedDays.length > 0) {
+          const regDay = st.info?.closed_regular || '';
+          const matchDay = selectedDays.some(day => regDay.includes(day));
+          if (!matchDay) return false;
+        }
+
+        if (mealInside && !hasValue(st.meals?.inside_restaurant)) return false;
+        if (mealCourt && !hasValue(st.meals?.food_court)) return false;
+        if (mealOutside && !hasValue(st.meals?.outside_restaurant)) return false;
+
+        if (shopLarge && !st.shopping?.local_products?.includes('大')) return false;
+
+        if (infoDesk && !(st.facilities?.info_desk?.includes('〇') || st.facilities?.info_desk?.includes('○') || st.facilities?.info_desk?.includes('1'))) return false;
+
+        if (kidsArea) {
+          const k = st.facilities?.kids_area || '';
+          if (!k.includes('◎') && !k.includes('〇') && !k.includes('○') && !k.includes('1')) return false;
+        }
+
+        if (attHotel && !hasValue(st.attachments?.hotel)) return false;
+        if (attPark && !hasValue(st.attachments?.park)) return false;
+        if (attGolf && !hasValue(st.attachments?.park_golf)) return false;
+        if (attDog && !hasValue(st.attachments?.dog_run)) return false;
+
+        if (otherKw && !st.other?.includes(otherKw)) return false;
+
+        return true;
+      });
+    }
+
+    function updateRealtimeCount() {
+      const results = filterAdvancedData();
+      document.getElementById('modalMatchCount').textContent = results.length;
+    }
+
+    function renderView() {
+      const selectedIds = [];
+      for (let i = 1; i <= 5; i++) {
+        const val = document.getElementById(`station${i}`).value;
+        if (val) selectedIds.push(parseInt(val));
+      }
+
+      if (selectedIds.length === 0) {
+        alert("道の駅を少なくとも1つ選択してください。");
+        return;
+      }
+
+      const selectedStations = selectedIds.map(id => rawData.find(s => s.id === id)).filter(Boolean);
+      displayStations(selectedStations);
+    }
+
+    function execAdvancedSearch() {
+      const results = filterAdvancedData();
+      closeModal();
+
+      if (results.length === 0) {
+        alert("条件に一致する道の駅が見つかりませんでした。");
+        return;
+      }
+
+      displayStations(results);
+    }
+
+    /* 2地点の緯度経度から距離(km)を計算 */
+    function getDistanceKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    /* 現在地から近い順に指定件数（5件）を表示 */
+    function showNearbyStations(limitCount = 5) {
+      if (!navigator.geolocation) {
+        alert("お使いのブラウザは位置情報（GPS）に対応していません。");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          const stationsWithDist = rawData
+            .filter(st => st.location && st.location.lat && st.location.lng)
+            .map(st => {
+              const dist = getDistanceKm(userLat, userLng, parseFloat(st.location.lat), parseFloat(st.location.lng));
+              return { ...st, _distanceKm: dist };
+            });
+
+          if (stationsWithDist.length === 0) {
+            alert("位置情報が登録されている道の駅データが見つかりませんでした。");
+            return;
+          }
+
+          stationsWithDist.sort((a, b) => a._distanceKm - b._distanceKm);
+          const nearbyTop = stationsWithDist.slice(0, limitCount);
+
+          displayStations(nearbyTop);
+        },
+        (error) => {
+          alert("位置情報の取得に失敗しました。スマホやブラウザの位置情報設定をご確認ください。");
+        }
+      );
+    }
+
+    /* 選択エリアの行（エリア・駅名）を正しく入れ替える関数 */
+    function swapRows(idx1, idx2) {
+      const area1 = document.getElementById(`area${idx1}`);
+      const station1 = document.getElementById(`station${idx1}`);
+      const area2 = document.getElementById(`area${idx2}`);
+      const station2 = document.getElementById(`station${idx2}`);
+
+      const valArea1 = area1.value;
+      const valArea2 = area2.value;
+      const valStation1 = station1.value;
+      const valStation2 = station2.value;
+
+      area1.value = valArea2;
+      area2.value = valArea1;
+
+      updateStationOptions(idx1);
+      updateStationOptions(idx2);
+
+      if (valStation1) station2.value = valStation1;
+      if (valStation2) station1.value = valStation2;
+    }
+
+    /* 連続道順表示 */
+    function openMultiRoute() {
+      let list = [];
+
+      if (window.currentDisplayedStations && window.currentDisplayedStations.length > 0) {
+        list = window.currentDisplayedStations;
+      } else {
+        const selectedIds = [];
+        for (let i = 1; i <= 5; i++) {
+          const val = document.getElementById(`station${i}`).value;
+          if (val) selectedIds.push(parseInt(val));
+        }
+
+        if (selectedIds.length === 0) {
+          alert("道の駅が選択されていません。選択BOXで駅を選ぶか詳細検索を行ってください。");
+          return;
+        }
+
+        list = selectedIds.map(id => rawData.find(s => s.id === id)).filter(Boolean);
+      }
+
+      const getLocStr = (st) => {
+        const rawName = st.name || '';
+        const displayName = rawName.includes('道の駅') ? rawName : `道の駅 ${rawName}`;
+
+        const isFallback = fallbackStations.some(fb => 
+          rawName.replace(/[\s\u3000]+/g, '') === fb.replace(/[\s\u3000]+/g, '')
+        );
+
+        if (!isFallback && st.location && st.location.lat && st.location.lng) {
+          const lat = String(st.location.lat).trim();
+          const lng = String(st.location.lng).trim();
+          return `${lat},${lng}(${encodeURIComponent(displayName)})`;
+        }
+
+        return encodeURIComponent(`${displayName} ${st.city || ''}`);
+      };
+
+      if (list.length === 1) {
+        openNav(list[0].name, list[0].location, list[0].city);
+        return;
+      }
+
+      const destination = getLocStr(list[list.length - 1]);
+      const waypoints = list.slice(0, list.length - 1).map(getLocStr).join('|');
+
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&waypoints=${waypoints}`;
+      window.open(url, '_blank');
+    }
+
+    // Leaflet マップ保持用変数
+    let leafletMapObj = null;
+    let leafletMarkers = [];
+
+    /* エリア全体地図を表示 */
+    function openAreaMap(defaultArea) {
+      const modal = document.getElementById('areaMapModal');
+      modal.style.display = 'flex';
+
+      const areaList = (typeof areas !== 'undefined' && areas.length > 0) 
+        ? areas 
+        : [...new Set(rawData.map(st => st.area))].filter(Boolean);
+
+      const activeArea = defaultArea || (document.getElementById('area1')?.value) || areaList[0];
+
+      const tabContainer = document.getElementById('areaTabContainer');
+      tabContainer.innerHTML = '';
+      areaList.forEach(areaName => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `area-tab-btn ${areaName === activeArea ? 'active' : ''}`;
+        btn.textContent = areaName;
+        btn.onclick = () => renderAreaMap(areaName);
+        tabContainer.appendChild(btn);
+      });
+
+      setTimeout(() => {
+        renderAreaMap(activeArea);
+      }, 100);
+    }
+
+    function closeAreaMapModal(event) {
+      document.getElementById('areaMapModal').style.display = 'none';
+    }
+
+    function renderAreaMap(areaName) {
+      const tabs = document.querySelectorAll('.area-tab-btn');
+      tabs.forEach(tab => {
+        if (tab.textContent === areaName) {
+          tab.classList.add('active');
+          tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          tab.classList.remove('active');
+        }
+      });
+
+      document.getElementById('areaMapTitle').textContent = `🗺️ ${areaName} エリアマップ`;
+
+      const stations = rawData.filter(st => st.area === areaName && st.location && st.location.lat && st.location.lng);
+
+      if (stations.length === 0) {
+        alert("選択されたエリアの位置情報データが見つかりませんでした。");
+        return;
+      }
+
+      if (!leafletMapObj) {
+        leafletMapObj = L.map('leafletMap').setView([43.06417, 141.34694], 8);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(leafletMapObj);
+      }
+
+      leafletMapObj.invalidateSize();
+
+      leafletMarkers.forEach(m => leafletMapObj.removeLayer(m));
+      leafletMarkers = [];
+
+      const bounds = [];
+
+      stations.forEach(st => {
+        const lat = parseFloat(st.location.lat);
+        const lng = parseFloat(st.location.lng);
+        bounds.push([lat, lng]);
+
+        const hasHotSpring = st.hot_spring && st.hot_spring.facility_name && !['－', 'ー', '-', ''].includes(st.hot_spring.facility_name.trim());
+        
+        const rawName = st.name || '';
+        const displayName = rawName.includes('道の駅') ? rawName : `道の駅 ${rawName}`;
+        const hsInfo = hasHotSpring ? `<br>♨️ 温泉: ${st.hot_spring.facility_name}` : '';
+
+        const popupHtml = `
+          <div class="popup-title">${displayName}</div>
+          <div style="font-size:12px; color:#555;">📍 ${st.city || ''}${hsInfo}</div>
+          <a class="popup-nav-btn" href="javascript:void(0)" onclick="openNav('${st.name}', ${JSON.stringify(st.location).replace(/"/g, '&quot;')}, '${st.city || ''}')">
+            🚗 ナビを起動
+          </a>
+        `;
+
+        const marker = L.marker([lat, lng]).addTo(leafletMapObj).bindPopup(popupHtml);
+        leafletMarkers.push(marker);
+      });
+
+      if (bounds.length > 0) {
+        leafletMapObj.fitBounds(bounds, { padding: [30, 30] });
+      }
+    }
+
+    /* 共通カード描画処理 */
+    function displayStations(stations) {
+      toggleSelector(false);
+      
+      window.currentDisplayedStations = stations;
+
+      const countBar = document.getElementById('resultCountBar');
+      countBar.style.display = 'block';
+      countBar.innerHTML = `検索結果： <strong>${stations.length}</strong> 件の道の駅を表示中(駅名及び入浴施設クリックで道順表示)`;
+
+      const container = document.getElementById('cardsContainer');
+      container.innerHTML = '';
+
+      stations.forEach(st => {
+        const stLocationJson = JSON.stringify(st.location || {}).replace(/"/g, '&quot;');
+        const hsLocationJson = JSON.stringify(st.hot_spring?.location || {}).replace(/"/g, '&quot;');
+        const safeName = (st.name || '').replace(/'/g, "\\'");
+        const safeHsName = (st.hot_spring?.facility_name || '').replace(/'/g, "\\'");
+        const safeCity = (st.city || '').replace(/'/g, "\\'");
+
+        const hsName = st.hot_spring?.facility_name;
+        const hsLoc = st.hot_spring?.location;
+        let hsHtml = '－';
+
+        const hasValidHsLoc = hsLoc && hsLoc.lat && hsLoc.lng && 
+                              !['－', 'ー', '-', '', '0'].includes(String(hsLoc.lat).trim());
+
+        if (hsName && !['－', 'ー', '-', ''].includes(hsName.trim()) && hasValidHsLoc) {
+          hsHtml = '<span class="nav-link" onclick="openNav(\'' + safeHsName + '\', ' + hsLocationJson + ', \'' + safeCity + '\')" title="Google Mapsでルート案内を開く">♨️ ' + hsName + '</span>';
+        } else if (hsName && !['－', 'ー', '-', ''].includes(hsName.trim())) {
+          hsHtml = hsName;
+        }
+
+        const blockHtml = `
+          <div class="station-block">
+            <table class="st-table">
+              <tr>
+                <td style="width:10%;" class="lbl-basic">駅名</td>
+                <td style="width:34%; padding:0 8px; font-size:12px;">
+                  <span class="nav-link" onclick="openNav('${safeName}', ${stLocationJson}, '${safeCity}')" title="Google Mapsでルート案内を開く">
+                    📍 ${st.name}
+                  </span>
+                </td>
+                <td style="width:8%;" class="lbl-basic">登録順</td>
+                <td style="width:6%; text-align:center;">${fmt(st.order)}</td>
+                <td style="width:8%;" class="lbl-basic">エリア</td>
+                <td style="width:8%; text-align:center;">${fmt(st.area)}</td>
+                <td style="width:8%;" class="lbl-basic">市町村</td>
+                <td style="width:14.5%; text-align:center;">${fmt(st.city)}</td>
+              </tr>
+              <tr>
+                <th class="cat-blue">駅情報</th>
+                <td colspan="7">
+                  <div style="display: flex; flex-direction: column; width: 100%; height: 56px;">
+                    <div class="inner-row" style="height: 28px; border-bottom: 1px solid #000;">
+                      <div class="sub-lbl" style="width: 10%;">登録年度</div>
+                      <div class="val-cell" style="width: 10%; border-right: 1px solid #000;">${fmt(st.info?.registered_year)}</div>
+                      <div class="sub-hdr-blue" style="width: 45%; border-right: 1px solid #000;">営業時間</div>
+                      <div class="sub-hdr-blue" style="width: 35%;">定休日</div>
+                    </div>
+                    <div class="inner-row" style="height: 28px;">
+                      <div class="sub-lbl" style="width: 10%;">スタンプ</div>
+                      <div class="val-cell" style="width: 10%; border-right: 1px solid #000;">${fmt(st.info?.stamp)}</div>
+                      <div class="sub-lbl" style="width: 10%;">夏時間</div>
+                      <div class="val-cell" style="width: 12.5%; border-right: 1px solid #000;">${fmt(st.info?.hours_summer)}</div>
+                      <div class="sub-lbl" style="width: 10%;">冬時間</div>
+                      <div class="val-cell" style="width: 12.5%; border-right: 1px solid #000;">${fmt(st.info?.hours_winter)}</div>
+                      <div class="sub-lbl" style="width: 7.5%;">定期</div>
+                      <div class="val-cell" style="width: 10%; border-right: 1px solid #000;">${fmt(st.info?.closed_regular)}</div>
+                      <div class="sub-lbl" style="width: 7.5%;">特別</div>
+                      <div class="val-cell" style="width: 10%;">${fmt(st.info?.closed_special)}</div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="cat-blue">食事</th>
+                <td colspan="7">
+                  <div class="inner-row">
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内食堂</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.inside_restaurant)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内コート</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.food_court)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内軽食</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.inside_snack)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外食堂</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.outside_restaurant)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外屋台</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.outside_stall)}</div></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="cat-blue">物販</th>
+                <td colspan="7">
+                  <div class="inner-row">
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内売店</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.inside_shop)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外売店</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.outside_shop)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">物産店</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.local_products)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ｿﾌﾄｸﾘｰﾑ</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.soft_serve)}</div></div>
+                    <div class="cell-unit" style="width:20%; background-color:#fff;"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="cat-blue">通信</th>
+                <td colspan="7">
+                  <div class="inner-row">
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">Wi-Fi</div><div class="val-cell" style="width:50%;">${fmt(st.telecom?.wifi)}</div></div>
+                    <div class="cell-unit" style="width:40%;"><div class="sub-lbl" style="width:50%;">ｷｬｯｼｭｶｰﾄﾞ</div><div class="val-cell" style="width:50%;">${fmt(st.telecom?.cashless_card)}</div></div>
+                    <div class="cell-unit" style="width:40%;"><div class="sub-lbl" style="width:50%;">QRコード決済等</div><div class="val-cell" style="width:50%;">${fmt(st.telecom?.cashless_qr)}</div></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="cat-blue">施設</th>
+                <td colspan="7">
+                  <div class="inner-row">
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">案内所</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.info_desk)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内休憩</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.inside_rest)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外休憩</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.outside_rest)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">授乳専用</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.nursing_room)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ｷｯｽﾞｴﾘｱ</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.kids_area)}</div></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="cat-blue">付属施設</th>
+                <td colspan="7">
+                  <div class="inner-row">
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ホテル</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.hotel)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">公園</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.park)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ﾊﾟｰｸｺﾞﾙﾌ</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.park_golf)}</div></div>
+                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ﾄﾞｯｸﾞﾗﾝ</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.dog_run)}</div></div>
+                    <div class="cell-unit" style="width:20%; background-color:#fff;"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="cat-blue">近傍入浴</th>
+                <td colspan="7">
+                  <div class="inner-row">
+                    <div class="cell-unit" style="width:30%;"><div class="sub-lbl" style="width:33%;">距離</div><div class="val-cell" style="width:67%;">${fmt(st.hot_spring?.distance)}</div></div>
+                    <div class="cell-unit" style="width:70%;">
+                      <div class="sub-lbl" style="width:28.5%;">対象店名</div>
+                      <div class="val-cell" style="width:71.5%; padding:0 6px; justify-content:flex-start;">${hsHtml}</div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="cat-blue">その他</th>
+                <td colspan="7">
+                  <div class="inner-row">
+                    <div class="cell-unit" style="width:70%; padding: 4px 8px; justify-content:flex-start; border-right:1px solid #000;">${fmt(st.other)}</div>
+                    <div class="cell-unit" style="width:30%;"><div class="sub-lbl" style="width:70%;">最終訪問年月</div><div class="val-cell" style="width:30%; font-weight:bold;">${fmt(st.last_visit)}</div></div>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        `;
+        container.innerHTML += blockHtml;
+      });
+    }
+
+    initData();
+  </script>
+</body>
+</html>
