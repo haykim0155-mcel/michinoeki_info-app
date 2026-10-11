@@ -174,6 +174,40 @@
     .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
     .checkbox-group label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
     .search-input, .search-select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+
+    /* パスワードロック用画面 */
+    .lock-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #1f3f6d;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      padding: 20px;
+    }
+    .lock-box {
+      background: #fff;
+      color: #333;
+      padding: 25px 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .lock-box h2 { font-size: 18px; margin: 0 0 10px; color: #1f3f6d; }
+    .lock-input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin: 15px 0;
+      text-align: center;
+    }
   </style>
   <!-- Leaflet.js (無料の地図ライブラリ) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -182,6 +216,17 @@
 <body>
 
   <h1>北海道内 道の駅情報</h1>
+
+  <!-- パスワード保護オーバーレイ -->
+  <div id="lockOverlay" class="lock-overlay">
+    <div class="lock-box">
+      <h2>🔒 パスワード入力</h2>
+      <p style="font-size:12px; color:#666; margin:0;">利用するにはパスワードを入力してください</p>
+      <input type="password" id="passInput" class="lock-input" placeholder="パスワード" onkeydown="if(event.key==='Enter') checkPassword()">
+      <button class="btn" onclick="checkPassword()">認証する</button>
+      <p id="passError" style="color:red; font-size:12px; margin-top:10px; display:none;">パスワードが違います</p>
+    </div>
+  </div>
 
   <!-- 選び直しボタン -->
   <div id="reopenBtn" style="display: none; max-width: 650px; margin: 0 auto 15px;">
@@ -360,6 +405,37 @@
       "南ふらの", "びえい「丘のくら」", "てしお", "るもい",
       "サロマ湖", "おうむ", "遠軽 森のオホーツク", "遠軽\u3000森のオホーツク", "摩周温泉", "しかおい"
     ];
+
+    // 設定したいパスワード（お好きな文字列に変更してください）
+    const APP_PASSWORD = "Tokachi0155"; // ← ここを好みのパスワードに変更！
+
+    /* パスワードチェック関数 */
+    function checkPassword() {
+      const input = document.getElementById('passInput').value;
+      const err = document.getElementById('passError');
+
+      if (input === APP_PASSWORD) {
+        // 成功時：ローカルストレージに認証フラグを保存してロック解除
+        localStorage.setItem('hokkaido_app_auth', 'true');
+        document.getElementById('lockOverlay').style.display = 'none';
+      } else {
+        err.style.display = 'block';
+      }
+    }
+
+    /* 起動時の認証状態チェック */
+    function checkAuthOnLoad() {
+      const isAuth = localStorage.getItem('hokkaido_app_auth');
+      if (isAuth === 'true') {
+        // 過去にログイン成功済みならロック画面を非表示にする
+        document.getElementById('lockOverlay').style.display = 'none';
+      } else {
+        document.getElementById('lockOverlay').style.display = 'flex';
+      }
+    }
+
+    // ページ読み込み時に認証状態を確認
+    window.addEventListener('DOMContentLoaded', checkAuthOnLoad);
 
     let rawData = typeof stationData !== 'undefined' ? stationData : [];
     let areas = [];
