@@ -61,12 +61,15 @@
     .selector-box h3 { margin: 0 0 12px; font-size: 14px; text-align: center; color: #2b5797; }
     
     .select-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+    /* 選択ボックス行の幅固定 */
     .select-row {
       display: flex; align-items: center; gap: 6px;
       background: #f0f4f8; padding: 6px 8px; border-radius: 4px; border: 1px solid #dcdcdc;
+      height: 38px; box-sizing: border-box;
     }
-    .select-row .num { font-weight: bold; width: 20px; color: #2b5797; }
-    .select-row select { padding: 5px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; }
+    .select-row .num { font-weight: bold; width: 18px; color: #2b5797; flex-shrink: 0; }
+    .select-row select { padding: 5px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; height: 28px; box-sizing: border-box; }
+    .btn-move-placeholder { width: 59px; display: inline-block; flex-shrink: 0; }
 
     .btn-row { display: flex; gap: 10px; }
 
@@ -257,22 +260,26 @@
 
   <!-- メイン選択エリア -->
   <div class="selector-box" id="selectorBox">
-    <h3>表示したい道の駅を選択 (最大5つ)</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h3 style="margin: 0; font-size: 14px; color: #2b5797;">表示したい道の駅を選択 (最大5つ)</h3>
+      <button type="button" class="btn-sub" onclick="resetSelectors()" style="padding: 3px 8px; font-size: 11px; background: #666;">リセット</button>
+    </div>
+    
     <div class="select-group">
       <script>
         for(let i=1; i<=5; i++){
           document.write(`
             <div class="select-row" id="row_container_${i}">
               <span class="num">${i}.</span>
-              <select class="area-select" id="area${i}" style="flex: 1;" onchange="updateStationOptions(${i})">
+              <select class="area-select" id="area${i}" style="width: 35%; flex-shrink: 0;" onchange="updateStationOptions(${i})">
                 <option value="" disabled selected hidden>エリア選択</option>
               </select>
-              <select class="station-select" id="station${i}" style="flex: 1.5;">
+              <select class="station-select" id="station${i}" style="width: 45%; flex-grow: 1;">
                 <option value="" disabled selected hidden>駅名選択</option>
               </select>
-              <div style="display: flex; gap: 3px; margin-left: auto;">
-                ${i > 1 ? `<button class="btn-move" onclick="swapRows(${i},${i-1})" title="上に移動">▲</button>` : `<span class="btn-move-placeholder"></span>`}
-                ${i < 5 ? `<button class="btn-move" onclick="swapRows(${i},${i+1})" title="下に移動">▼</button>` : `<span class="btn-move-placeholder"></span>`}
+              <div style="display: flex; gap: 3px; margin-left: auto; width: 59px; justify-content: flex-end; flex-shrink: 0;">
+                ${i > 1 ? `<button class="btn-move" onclick="swapRows(${i},${i-1})" title="上に移動">▲</button>` : `<span style="width:28px;"></span>`}
+                ${i < 5 ? `<button class="btn-move" onclick="swapRows(${i},${i+1})" title="下に移動">▼</button>` : `<span style="width:28px;"></span>`}
               </div>
             </div>
           `);
@@ -688,6 +695,16 @@
       );
     }
 
+    /* 選択肢を一括クリア（リセット）する関数 */
+    function resetSelectors() {
+      for (let i = 1; i <= 5; i++) {
+        const areaSel = document.getElementById(`area${i}`);
+        const stSel = document.getElementById(`station${i}`);
+        if (areaSel) areaSel.selectedIndex = 0;
+        if (stSel) stSel.innerHTML = '<option value="" disabled selected hidden>駅名選択</option>';
+      }
+    }
+
     function swapRows(idx1, idx2) {
       const area1 = document.getElementById(`area${idx1}`);
       const station1 = document.getElementById(`station${idx1}`);
@@ -875,7 +892,7 @@
       countBar.innerHTML = `
         <div style="font-size:12px; color:#333; line-height:1.6; font-weight:normal; margin-bottom:6px;">
           ※１ 駅名及び入浴施設をクリックすると経路を表示します。<br>
-          ※２ 営業時間の★は、時期によって違う営業時間の場合があります。
+          ※２ 営業時間・定休日は道の駅の情報ですが、時期や状況により異なる場合があります。特に★がある道の駅は、ご確認ください。
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
           <span style="font-size:12px; font-weight:bold; color:#1f3f6d;">ジャンプ:</span>
@@ -958,13 +975,19 @@
                 <col style="width:14%;">
               </colgroup>
               
-              <!-- 1行目：駅名 -->
+              <!-- 1行目：駅名（右端に「北の道の駅」リンク配置） -->
               <tr>
                 <th class="cat-blue">駅名</th>
-                <td colspan="6" style="text-align:left; padding:0 8px; font-weight:bold; font-size:13px;">
-                  <span class="nav-link" onclick="openNav('${safeName}', ${stLocationJson}, '${safeCity}')" title="Google Mapsでルート案内を開く">
-                    📍 ${st.name}
-                  </span>
+                <td colspan="6" style="padding: 0 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <!-- 左側：駅名（ルート案内） -->
+                    <span class="nav-link" onclick="openNav('${safeName}', ${stLocationJson}, '${safeCity}')" title="Google Mapsでルート案内を開く" style="font-weight:bold; font-size:13px;">
+                      📍 ${st.name}
+                    </span>
+                    
+                    <!-- 右側：北の道の駅 リンクボタン -->
+                    ${ (st.url_id || st.official_url_id) ? '<a href="https://hokkaido-michinoeki.jp/michinoeki/' + (st.url_id || st.official_url_id) + '/" target="_blank" rel="noopener noreferrer" style="color: #2b5797; text-decoration: underline; font-weight: bold; font-size: 11px; white-space: nowrap;">🌐 北の道の駅を開く</a>' : '' }
+                  </div>
                 </td>
               </tr>
 
