@@ -84,23 +84,48 @@
       width: 100%; border-collapse: collapse; background: #fff; border: 2px solid #000;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
+    /* エクセル風テーブル用のベース設定（上書き） */
     .st-table td, .st-table th {
-      border: 1px solid #000; font-size: 11px; padding: 0; vertical-align: middle; height: 28px;
+      border: 1px solid #000 !important;
+      font-size: 11px;
+      padding: 0 2px;
+      vertical-align: middle;
+      height: 28px;
+      box-sizing: border-box;
     }
     
+    /* 左側カテゴリ青（上書き） */
     .cat-blue {
-      background-color: #0070c0; color: #fff; font-weight: bold;
-      text-align: center; width: 14%; white-space: nowrap; font-size: 12px;
+      background-color: #0070c0 !important;
+      color: #fff !important;
+      font-weight: bold;
+      text-align: center;
+      font-size: 12px;
+      white-space: nowrap;
     }
-    .lbl-basic { background-color: #00b0f0; color: #000; font-weight: bold; text-align: center; }
+
+    /* 水色ヘッダーラベル */
+    .lbl-basic { 
+      background-color: #00b0f0 !important; 
+      color: #000 !important; 
+      font-weight: bold; 
+      text-align: center; 
+    }
+
+    /* 薄青ヘッダーラベル */
     .sub-hdr-blue {
-      background-color: #8EA9DB; color: #000; font-weight: bold;
-      text-align: center; display: flex; align-items: center; justify-content: center; height: 100%;
+      background-color: #8EA9DB !important;
+      color: #000 !important;
+      font-weight: bold;
+      text-align: center;
     }
+
+    /* 薄グレーのセルラベル（flexを削除してテーブル標準配置に修正） */
     .sub-lbl {
-      background-color: #d9e1f2; font-weight: normal; text-align: center;
-      padding: 0 2px; height: 100%; display: flex; align-items: center; justify-content: center;
-      border-right: 1px solid #000; flex-shrink: 0;
+      background-color: #d9e1f2 !important;
+      color: #000 !important;
+      font-weight: normal;
+      text-align: center;
     }
     .val-cell {
       text-align: center; background-color: #fff; padding: 0 2px;
@@ -877,124 +902,149 @@
 
         const blockHtml = `
           <div class="station-block">
-            <table class="st-table">
+            <table class="st-table" style="width:100%; border-collapse:collapse; text-align:center; font-size:12px; table-layout:fixed;">
+              <colgroup>
+                <col style="width:16%;">
+                <col style="width:14%;">
+                <col style="width:14%;">
+                <col style="width:14%;">
+                <col style="width:14%;">
+                <col style="width:14%;">
+                <col style="width:14%;">
+              </colgroup>
+              
+              <!-- 1行目：駅名 -->
               <tr>
-                <td style="width:10%;" class="lbl-basic">駅名</td>
-                <td style="width:34%; padding:0 8px; font-size:12px;">
+                <th class="cat-blue">駅名</th>
+                <td colspan="6" style="text-align:left; padding:0 8px; font-weight:bold; font-size:13px;">
                   <span class="nav-link" onclick="openNav('${safeName}', ${stLocationJson}, '${safeCity}')" title="Google Mapsでルート案内を開く">
                     📍 ${st.name}
                   </span>
                 </td>
-                <td style="width:8%;" class="lbl-basic">登録順</td>
-                <td style="width:6%; text-align:center;">${fmt(st.order)}</td>
-                <td style="width:8%;" class="lbl-basic">エリア</td>
-                <td style="width:8%; text-align:center;">${fmt(st.area)}</td>
-                <td style="width:8%;" class="lbl-basic">市町村</td>
-                <td style="width:14.5%; text-align:center;">${fmt(st.city)}</td>
+              </tr>
+
+              <!-- 2行目：基本属性 -->
+              <tr>
+                <th class="cat-blue">登録順</th>
+                <td>${fmt(st.order)}</td>
+                <th class="cat-blue">エリア</th>
+                <td>${fmt(st.area)}</td>
+                <th class="cat-blue">市町村</th>
+                <td colspan="2" style="text-align:left; padding-left:8px;">${fmt(st.city)}</td>
+              </tr>
+
+              <!-- 3-5行目：駅情報・営業時間・定休日（エクセル風縦結合） -->
+              <tr>
+                <th class="cat-blue" rowspan="3">駅情報<br>営業時間<br>定休日</th>
+                <td class="sub-lbl">登録年度</td>
+                <td colspan="2">${fmt(st.info?.registered_year)}</td>
+                <td class="sub-lbl">スタンプ押印</td>
+                <td colspan="2">${fmt(st.info?.stamp)}</td>
               </tr>
               <tr>
-                <th class="cat-blue">駅情報</th>
-                <td colspan="7">
-                  <div style="display: flex; flex-direction: column; width: 100%; height: 56px;">
-                    <div class="inner-row" style="height: 28px; border-bottom: 1px solid #000;">
-                      <div class="sub-lbl" style="width: 10%;">登録年度</div>
-                      <div class="val-cell" style="width: 10%; border-right: 1px solid #000;">${fmt(st.info?.registered_year)}</div>
-                      <div class="sub-hdr-blue" style="width: 45%; border-right: 1px solid #000;">営業時間</div>
-                      <div class="sub-hdr-blue" style="width: 35%;">定休日</div>
-                    </div>
-                    <div class="inner-row" style="height: 28px;">
-                      <div class="sub-lbl" style="width: 10%;">スタンプ</div>
-                      <div class="val-cell" style="width: 10%; border-right: 1px solid #000;">${fmt(st.info?.stamp)}</div>
-                      <div class="sub-lbl" style="width: 10%;">夏時間</div>
-                      <div class="val-cell" style="width: 12.5%; border-right: 1px solid #000;">${fmt(st.info?.hours_summer)}</div>
-                      <div class="sub-lbl" style="width: 10%;">冬時間</div>
-                      <div class="val-cell" style="width: 12.5%; border-right: 1px solid #000;">${fmt(st.info?.hours_winter)}</div>
-                      <div class="sub-lbl" style="width: 7.5%;">定期</div>
-                      <div class="val-cell" style="width: 10%; border-right: 1px solid #000;">${fmt(st.info?.closed_regular)}</div>
-                      <div class="sub-lbl" style="width: 7.5%;">特別</div>
-                      <div class="val-cell" style="width: 10%;">${fmt(st.info?.closed_special)}</div>
-                    </div>
-                  </div>
-                </td>
+                <td class="sub-lbl">夏時間</td>
+                <td colspan="2">${fmt(st.info?.hours_summer)}</td>
+                <td class="sub-lbl">冬時間</td>
+                <td colspan="2">${fmt(st.info?.hours_winter)}</td>
               </tr>
               <tr>
-                <th class="cat-blue">食事</th>
-                <td colspan="7">
-                  <div class="inner-row">
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内食堂</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.inside_restaurant)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内コート</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.food_court)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内軽食</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.inside_snack)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外食堂</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.outside_restaurant)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外屋台</div><div class="val-cell" style="width:50%;">${fmt(st.meals?.outside_stall)}</div></div>
-                  </div>
-                </td>
+                <td class="sub-lbl">定期</td>
+                <td colspan="2">${fmt(st.info?.closed_regular)}</td>
+                <td class="sub-lbl">特別</td>
+                <td colspan="2">${fmt(st.info?.closed_special)}</td>
               </tr>
+
+              <!-- 6-7行目：食事 -->
+              <tr>
+                <th class="cat-blue" rowspan="2">食事</th>
+                <td class="sub-lbl">内食堂</td>
+                <td>${fmt(st.meals?.inside_restaurant)}</td>
+                <td class="sub-lbl">内コート</td>
+                <td>${fmt(st.meals?.food_court)}</td>
+                <td class="sub-lbl">内軽食</td>
+                <td>${fmt(st.meals?.inside_snack)}</td>
+              </tr>
+              <tr>
+                <td class="sub-lbl">外食堂</td>
+                <td>${fmt(st.meals?.outside_restaurant)}</td>
+                <td class="sub-lbl">外屋台</td>
+                <td>${fmt(st.meals?.outside_stall)}</td>
+                <td class="sub-lbl">ソフトクリーム</td>
+                <td>${fmt(st.shopping?.soft_serve)}</td>
+              </tr>
+
+              <!-- 8行目：物販 -->
               <tr>
                 <th class="cat-blue">物販</th>
-                <td colspan="7">
-                  <div class="inner-row">
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内売店</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.inside_shop)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外売店</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.outside_shop)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">物産店</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.local_products)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ｿﾌﾄｸﾘｰﾑ</div><div class="val-cell" style="width:50%;">${fmt(st.shopping?.soft_serve)}</div></div>
-                    <div class="cell-unit" style="width:20%; background-color:#fff;"></div>
-                  </div>
-                </td>
+                <td class="sub-lbl">内売店</td>
+                <td>${fmt(st.shopping?.inside_shop)}</td>
+                <td class="sub-lbl">外売店</td>
+                <td>${fmt(st.shopping?.outside_shop)}</td>
+                <td class="sub-lbl">物産店</td>
+                <td>${fmt(st.shopping?.local_products)}</td>
               </tr>
+
+              <!-- 9行目：通信 -->
               <tr>
                 <th class="cat-blue">通信</th>
-                <td colspan="7">
-                  <div class="inner-row">
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">Wi-Fi</div><div class="val-cell" style="width:50%;">${fmt(st.telecom?.wifi)}</div></div>
-                    <div class="cell-unit" style="width:40%;"><div class="sub-lbl" style="width:50%;">ｷｬｯｼｭｶｰﾄﾞ</div><div class="val-cell" style="width:50%;">${fmt(st.telecom?.cashless_card)}</div></div>
-                    <div class="cell-unit" style="width:40%;"><div class="sub-lbl" style="width:50%;">QRコード決済等</div><div class="val-cell" style="width:50%;">${fmt(st.telecom?.cashless_qr)}</div></div>
-                  </div>
-                </td>
+                <td class="sub-lbl">Wi-Fi</td>
+                <td>${fmt(st.telecom?.wifi)}</td>
+                <td class="sub-lbl">クレジット</td>
+                <td>${fmt(st.telecom?.cashless_card)}</td>
+                <td class="sub-lbl">QRコード</td>
+                <td>${fmt(st.telecom?.cashless_qr)}</td>
+              </tr>
+
+              <!-- 10-11行目：施設 -->
+              <tr>
+                <th class="cat-blue" rowspan="2">施設</th>
+                <td class="sub-lbl">案内所</td>
+                <td>${fmt(st.facilities?.info_desk)}</td>
+                <td class="sub-lbl">内休憩</td>
+                <td>${fmt(st.facilities?.inside_rest)}</td>
+                <td class="sub-lbl">外休憩</td>
+                <td>${fmt(st.facilities?.outside_rest)}</td>
               </tr>
               <tr>
-                <th class="cat-blue">施設</th>
-                <td colspan="7">
-                  <div class="inner-row">
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">案内所</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.info_desk)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">内休憩</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.inside_rest)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">外休憩</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.outside_rest)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">授乳専用</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.nursing_room)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ｷｯｽﾞｴﾘｱ</div><div class="val-cell" style="width:50%;">${fmt(st.facilities?.kids_area)}</div></div>
-                  </div>
-                </td>
+                <td class="sub-lbl">授乳専用</td>
+                <td>${fmt(st.facilities?.nursing_room)}</td>
+                <td class="sub-lbl">キッズエリア</td>
+                <td>${fmt(st.facilities?.kids_area)}</td>
+                <td colspan="2" style="background-color:#fff;"></td>
+              </tr>
+
+              <!-- 12-13行目：付属施設 -->
+              <tr>
+                <th class="cat-blue" rowspan="2">付属施設</th>
+                <td class="sub-lbl">ホテル</td>
+                <td>${fmt(st.attachments?.hotel)}</td>
+                <td class="sub-lbl">公園</td>
+                <td>${fmt(st.attachments?.park)}</td>
+                <td colspan="2" style="background-color:#fff;"></td>
               </tr>
               <tr>
-                <th class="cat-blue">付属施設</th>
-                <td colspan="7">
-                  <div class="inner-row">
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ホテル</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.hotel)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">公園</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.park)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ﾊﾟｰｸｺﾞﾙﾌ</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.park_golf)}</div></div>
-                    <div class="cell-unit" style="width:20%;"><div class="sub-lbl" style="width:50%;">ﾄﾞｯｸﾞﾗﾝ</div><div class="val-cell" style="width:50%;">${fmt(st.attachments?.dog_run)}</div></div>
-                    <div class="cell-unit" style="width:20%; background-color:#fff;"></div>
-                  </div>
-                </td>
+                <td class="sub-lbl">パークゴルフ</td>
+                <td>${fmt(st.attachments?.park_golf)}</td>
+                <td class="sub-lbl">ドッグラン</td>
+                <td>${fmt(st.attachments?.dog_run)}</td>
+                <td colspan="2" style="background-color:#fff;"></td>
               </tr>
+
+              <!-- 14行目：最寄入浴 -->
               <tr>
-                <th class="cat-blue">近傍入浴</th>
-                <td colspan="7">
-                  <div class="inner-row">
-                    <div class="cell-unit" style="width:30%;"><div class="sub-lbl" style="width:33%;">距離</div><div class="val-cell" style="width:67%;">${fmt(st.hot_spring?.distance)}</div></div>
-                    <div class="cell-unit" style="width:70%;">
-                      <div class="sub-lbl" style="width:28.5%;">対象店名</div>
-                      <div class="val-cell" style="width:71.5%; padding:0 6px; justify-content:flex-start;">${hsHtml}</div>
-                    </div>
-                  </div>
-                </td>
+                <th class="cat-blue">最寄入浴</th>
+                <td class="sub-lbl">距離</td>
+                <td>${fmt(st.hot_spring?.distance)}</td>
+                <td class="sub-lbl">対象店名</td>
+                <td colspan="3" style="text-align:left; padding:0 6px;">${hsHtml}</td>
               </tr>
+
+              <!-- 15行目：その他 -->
               <tr>
                 <th class="cat-blue">その他</th>
-                <td colspan="7">
-                  <div class="inner-row">
-                    <div class="cell-unit" style="width:70%; padding: 4px 8px; justify-content:flex-start; border-right:1px solid #000;">${fmt(st.other)}</div>
-                    <div class="cell-unit" style="width:30%;"><div class="sub-lbl" style="width:70%;">最終訪問年月</div><div class="val-cell" style="width:30%; font-weight:bold;">${fmt(st.last_visit)}</div></div>
-                  </div>
-                </td>
+                <td colspan="4" style="text-align:left; padding:0 8px;">${fmt(st.other)}</td>
+                <td class="sub-lbl">最終訪問</td>
+                <td style="font-weight:bold;">${fmt(st.last_visit)}</td>
               </tr>
             </table>
           </div>
