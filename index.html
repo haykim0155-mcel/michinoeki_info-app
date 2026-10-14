@@ -5,235 +5,250 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>北海道内 道の駅情報</title>
   <style>
-    * { box-sizing: border-box; font-family: sans-serif; font-size: 12px; }
-    body { margin: 0; padding: 10px; background-color: #f4f6f9; color: #333; }
+    /* ==========================================
+       ベース＆全体設定
+       ========================================== */
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; }
+    body { margin: 0; padding: 10px; background-color: #f0f4f8; color: #000; line-height: 1.4; }
     
-    h1 { text-align: center; font-size: 24px; margin: 10px 0 20px; color: #1f3f6d; font-weight: bold; }
-
-    /* 基本ボタン */
-    .btn {
-      background: #FF3300; color: #fff; border: none; padding: 10px; width: 100%;
-      border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: background 0.2s;
+    /* メインタイトル */
+    h1 {
+      text-align: center; font-size: 22px; margin: 10px 0 16px;
+      color: #1b4332; font-weight: 900; letter-spacing: 0.5px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
     }
-    .btn:hover { background: #cc2900; }
+    h1::before { content: "🌲"; font-size: 20px; }
+    h1::after { content: "🚗"; font-size: 20px; }
+
+    /* ==========================================
+       ボタンデザイン
+       ========================================== */
+    .btn {
+      background: linear-gradient(135deg, #ff4500, #cc3300);
+      color: #fff; border: none; padding: 12px; width: 100%;
+      border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 900;
+      box-shadow: 0 4px 10px rgba(204, 51, 0, 0.3); transition: all 0.2s ease;
+    }
+    .btn:hover { background: linear-gradient(135deg, #e63900, #b32d00); transform: translateY(-1px); }
+    .btn:active { transform: translateY(1px); }
     
     .btn-sub {
-      background: #2b5797; color: #fff; border: none; padding: 8px 12px;
-      border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;
+      background: #2b5797; color: #fff; border: none; padding: 8px 14px;
+      border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;
     }
     .btn-sub:hover { background: #1f3f6d; }
 
-    /* 選択肢入れ替え用小型ボタン */
     .btn-move {
-      background: #2b5797; color: #fff; border: none; border-radius: 3px;
-      padding: 4px 8px; cursor: pointer; font-size: 11px; font-weight: bold;
+      background: #4a5568; color: #fff; border: none; border-radius: 4px;
+      padding: 5px 9px; cursor: pointer; font-size: 11px; font-weight: bold;
     }
-    .btn-move:hover { background: #1f3f6d; }
-    .btn-move-placeholder { width: 28px; display: inline-block; }
+    .btn-move-placeholder { width: 59px; display: inline-block; flex-shrink: 0; }
 
-    /* ボタン3つを均等配置（3等分）するコンテナ */
-    .button-row-3 {
-      display: flex; gap: 10px; width: 100%; margin: 10px 0;
-    }
+    .button-row-3 { display: flex; gap: 8px; width: 100%; margin: 12px 0 4px; }
 
-    /* 3等分用共通ボタンデザイン */
     .btn-unified {
-      flex: 1; padding: 12px 8px; border: none; border-radius: 8px;
-      font-size: 14px; font-weight: bold; color: #ffffff; cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); transition: all 0.2s ease;
+      flex: 1; padding: 12px 6px; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 900; color: #ffffff; cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.15); transition: all 0.2s ease;
       display: flex; align-items: center; justify-content: center; text-align: center;
-      box-sizing: border-box;
     }
+    .btn-unified:hover { transform: translateY(-2px); }
 
-    .btn-unified:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); }
-    .btn-unified:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    .btn-orange { background: linear-gradient(135deg, #d96b27, #b85214); }
+    .btn-green  { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
+    .btn-pink   { background: linear-gradient(135deg, #d81b60, #ad1457); }
 
-    /* 個別カラー設定 */
-    .btn-orange { background-color: #ff8c00; }
-    .btn-green  { background-color: #008000; }
-    .btn-pink   { background-color: #ff66cc; }
-
+    /* ==========================================
+       選択ボックスエリア
+       ========================================== */
     .selector-box {
-      background: #fff; border: 1px solid #b0c4de; padding: 15px; border-radius: 6px;
-      max-width: 650px; margin: 0 auto 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background: #ffffff; border: none; padding: 16px; border-radius: 12px;
+      max-width: 650px; margin: 0 auto 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
-    .selector-box h3 { margin: 0 0 12px; font-size: 14px; text-align: center; color: #2b5797; }
+    .selector-box h3 { margin: 0 0 12px; font-size: 14px; text-align: center; color: #1b4332; font-weight: 900; }
     
     .select-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-    /* 選択ボックス行の幅固定 */
     .select-row {
-      display: flex; align-items: center; gap: 6px;
-      background: #f0f4f8; padding: 6px 8px; border-radius: 4px; border: 1px solid #dcdcdc;
-      height: 38px; box-sizing: border-box;
+      display: flex; align-items: center; gap: 6px; background: #f8fafc;
+      padding: 6px 10px; border-radius: 8px; border: 1px solid #cbd5e1; height: 42px;
     }
-    .select-row .num { font-weight: bold; width: 18px; color: #2b5797; flex-shrink: 0; }
-    .select-row select { padding: 5px; border: 1px solid #ccc; border-radius: 3px; font-size: 12px; height: 28px; box-sizing: border-box; }
-    .btn-move-placeholder { width: 59px; display: inline-block; flex-shrink: 0; }
+    .select-row .num { font-weight: 900; width: 18px; color: #2e7d32; flex-shrink: 0; }
+    .select-row select {
+      padding: 6px; border: 1px solid #94a3b8; border-radius: 6px;
+      font-size: 12px; font-weight: bold; height: 32px; background: #fff; color: #000;
+    }
 
     .btn-row { display: flex; gap: 10px; }
 
-    /* 画面上の件数表示バナー */
     .result-count-bar {
-      max-width: 650px; margin: 15px auto 15px; font-size: 14px; font-weight: bold;
-      color: #1f3f6d; background: #e6f2ff; padding: 8px 12px; border-radius: 4px;
-      border-left: 5px solid #2b5797; text-align: left; display: none;
+      max-width: 650px; margin: 15px auto; font-size: 13px; font-weight: bold;
+      color: #000; background: #ffffff; padding: 12px 16px; border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08); border-left: 6px solid #2e7d32; display: none;
     }
 
+    /* ==========================================
+       カード型テーブル (メリハリ・くっきり表示強化)
+       ========================================== */
     .cards-container { display: flex; flex-direction: column; gap: 20px; align-items: center; }
     .station-block { width: 100%; max-width: 650px; }
 
     .st-table {
-      width: 100%; border-collapse: collapse; background: #fff; border: 2px solid #000;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      width: 100%; border-collapse: collapse; background: #ffffff;
+      border: 2px solid #334155 !important; border-radius: 8px !important;
+      overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.12); margin-bottom: 8px;
     }
-    /* エクセル風テーブル用のベース設定（上書き） */
+
+    /* セル枠線と文字強調 */
     .st-table td, .st-table th {
-      border: 1px solid #000 !important;
-      font-size: 11px;
-      padding: 0 2px;
+      border: 1px solid #64748b !important; /* リッチな太め＆くっきり枠線 */
+      font-size: 12px;
+      font-weight: 700; /* 全体的に太字化して主張を強める */
+      color: #000000;   /* 文字ははっきり黒 */
+      padding: 3px 2px;
       vertical-align: middle;
-      height: 28px;
+      height: 32px;
       box-sizing: border-box;
     }
-    
-    /* 左側カテゴリ青（上書き） */
+
+    /* 左側メインカテゴリ（濃い色ベース＋白太字） */
     .cat-blue {
-      background-color: #0070c0 !important;
-      color: #fff !important;
-      font-weight: bold;
-      text-align: center;
+      background: #0284c7 !important; /* 鮮やかなブルー */
+      color: #ffffff !important;
+      font-weight: 900;
       font-size: 12px;
+      text-align: center;
       white-space: nowrap;
     }
 
-    /* 水色ヘッダーラベル */
-    .lbl-basic { 
-      background-color: #00b0f0 !important; 
-      color: #000 !important; 
-      font-weight: bold; 
-      text-align: center; 
+    /* 1行目駅名ヘッダー */
+    .st-table tr:first-child th {
+      background: #0284c7 !important;
+      color: #ffffff !important;
     }
 
-    /* 薄青ヘッダーラベル */
-    .sub-hdr-blue {
-      background-color: #8EA9DB !important;
-      color: #000 !important;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    /* 薄グレーのセルラベル */
+    /* 中身ラベル（濃いめのアクセントカラーで主張） */
     .sub-lbl {
-      background-color: #d9e1f2 !important;
-      color: #000 !important;
-      font-weight: normal;
+      font-weight: 900 !important;
       text-align: center;
+      color: #0f172a !important;
     }
+
+    /* 行ごとのカラーテーマ */
+    /* 基本・駅情報 */
+    tr:nth-child(2) .cat-blue, tr:nth-child(3) .cat-blue { background: #0284c7 !important; }
+    tr:nth-child(2) .sub-lbl, tr:nth-child(3) .sub-lbl, tr:nth-child(4) .sub-lbl, tr:nth-child(5) .sub-lbl { background: #e0f2fe !important; }
+
+    /* 食事行（鮮やかなグリーン系） */
+    tr:nth-child(6) .cat-blue, tr:nth-child(7) .cat-blue { background: #15803d !important; }
+    tr:nth-child(6) .sub-lbl, tr:nth-child(7) .sub-lbl { background: #dcfce7 !important; }
+
+    /* 物販行（温かみのあるゴールド・イエロー系） */
+    tr:nth-child(8) .cat-blue { background: #b45309 !important; }
+    tr:nth-child(8) .sub-lbl { background: #fef9c3 !important; }
+
+    /* 通信行（鮮やかなオレンジ系） */
+    tr:nth-child(9) .cat-blue { background: #c2410c !important; }
+    tr:nth-child(9) .sub-lbl { background: #ffedd5 !important; }
+
+    /* 施設行（深みのある朱色/ローズ系） */
+    tr:nth-child(10) .cat-blue, tr:nth-child(11) .cat-blue, tr:nth-child(12) .cat-blue { background: #be123c !important; }
+    tr:nth-child(10) .sub-lbl, tr:nth-child(11) .sub-lbl, tr:nth-child(12) .sub-lbl { background: #ffe4e6 !important; }
+
+    /* 最寄入浴行（深みのあるブルー/ネイビー） */
+    tr:nth-child(13) .cat-blue { background: #1e3a8a !important; }
+    tr:nth-child(13) .sub-lbl { background: #dbeafe !important; }
+
+    /* その他 */
+    tr:nth-child(14) .cat-blue { background: #334155 !important; }
+    tr:nth-child(14) .sub-lbl { background: #f1f5f9 !important; }
+
+    /* 値セル */
     .val-cell {
-      text-align: center; background-color: #fff; padding: 0 2px;
-      display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;
+      text-align: center; background-color: #ffffff;
+      font-weight: 900; font-size: 13px; color: #000;
     }
 
-    /* ナビゲーション起動用リンクスタイル */
+    /* ルート案内リンク */
     .nav-link {
-      color: #1f3f6d; text-decoration: underline; cursor: pointer; font-weight: bold;
-      display: inline-flex; align-items: center; gap: 3px;
+      color: #0284c7; text-decoration: underline; cursor: pointer;
+      font-weight: 900; display: inline-flex; align-items: center; gap: 3px;
     }
-    .nav-link:hover { color: #FF3300; }
+    .nav-link:hover { color: #d97706; }
 
-    /* モーダル共通 */
+    /* ==========================================
+       モーダル＆ポップアップ
+       ========================================== */
     .modal-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px); z-index: 1000;
+      justify-content: center; align-items: center;
     }
     .modal-content {
-      background: #fff; border-radius: 8px; padding: 20px; width: 90%; max-width: 550px;
-      max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2b5797; padding-bottom: 8px; margin-bottom: 10px; }
-    .modal-header h2 { margin: 0; font-size: 16px; color: #1f3f6d; }
-    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; }
-    .close-btn:hover { color: #000; }
-
-    .modal-count-box {
-      background-color: #e6f2ff; border: 1px solid #b0c4de; padding: 8px 12px;
-      border-radius: 4px; font-size: 13px; font-weight: bold; color: #1f3f6d;
-      margin-bottom: 15px; text-align: center;
-    }
-    .modal-count-box span { color: #FF3300; font-size: 16px; margin: 0 2px; }
-
-    /* 地図モーダル専用サイズ調整 */
-    .area-map-modal-content {
-      max-width: 700px !important;
-      width: 95% !important;
-    }
-
-    /* エリア選択タブの横スクロールコンテナ */
-    .area-tab-container {
-      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px;
-      margin-top: 5px; border-bottom: 1px solid #ddd;
-    }
-
-    .area-tab-btn {
-      background: #f0f4f8; border: 1px solid #b0c4de; border-radius: 16px;
-      padding: 6px 14px; font-size: 13px; font-weight: bold; color: #1f3f6d;
-      cursor: pointer; white-space: nowrap; transition: all 0.2s;
-    }
-
-    .area-tab-btn.active {
-      background: #2b5797; color: #ffffff; border-color: #2b5797;
-    }
-
-    /* ピンの吹き出し（ポップアップ）用デザイン */
-    .leaflet-popup-content { font-family: sans-serif; line-height: 1.4; font-size: 13px; }
-    .popup-title { font-weight: bold; color: #1f3f6d; font-size: 14px; margin-bottom: 4px; }
-    .popup-nav-btn {
-      display: inline-block; margin-top: 6px; padding: 4px 10px;
-      background: #008000; color: #fff !important; text-decoration: none;
-      border-radius: 4px; font-size: 12px; font-weight: bold;
-    }
-
-    .search-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #e0e0e0; }
-    .search-item label.title { font-weight: bold; color: #2b5797; display: block; margin-bottom: 5px; }
-    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
-    .checkbox-group label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
-    .search-input, .search-select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
-
-    /* パスワードロック用画面 */
-    .lock-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: #1f3f6d;
-      z-index: 10000;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      padding: 20px;
-    }
-    .lock-box {
-      background: #fff;
-      color: #333;
-      padding: 25px 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 360px;
-      text-align: center;
+      background: #fff; border-radius: 12px; padding: 20px;
+      width: 90%; max-width: 550px; max-height: 85vh; overflow-y: auto;
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
-    .lock-box h2 { font-size: 18px; margin: 0 0 10px; color: #1f3f6d; }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid #15803d; padding-bottom: 8px; margin-bottom: 12px;
+    }
+    .modal-header h2 { margin: 0; font-size: 16px; color: #15803d; font-weight: 900; }
+    .close-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #64748b; font-weight: bold; }
+
+    .modal-count-box {
+      background-color: #dcfce7; border: 1px solid #86efac; padding: 8px 12px;
+      border-radius: 6px; font-size: 13px; font-weight: 900; color: #14532d;
+      margin-bottom: 15px; text-align: center;
+    }
+    .modal-count-box span { color: #dc2626; font-size: 16px; margin: 0 2px; }
+
+    .area-map-modal-content { max-width: 700px !important; width: 95% !important; }
+
+    .area-tab-container {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;
+      margin-top: 5px; border-bottom: 1px solid #cbd5e1;
+    }
+    .area-tab-btn {
+      background: #e2e8f0; border: none; border-radius: 20px;
+      padding: 6px 16px; font-size: 12px; font-weight: 900; color: #334155;
+      cursor: pointer; white-space: nowrap; transition: all 0.2s;
+    }
+    .area-tab-btn.active {
+      background: #15803d; color: #ffffff; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.4);
+    }
+
+    .leaflet-popup-content { font-family: sans-serif; line-height: 1.4; font-size: 13px; }
+    .popup-title { font-weight: 900; color: #15803d; font-size: 14px; margin-bottom: 4px; }
+    .popup-nav-btn {
+      display: inline-block; margin-top: 6px; padding: 5px 12px;
+      background: #16a34a; color: #fff !important; text-decoration: none;
+      border-radius: 4px; font-size: 12px; font-weight: 900;
+    }
+
+    .search-item { margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed #cbd5e1; }
+    .search-item label.title { font-weight: 900; color: #15803d; display: block; margin-bottom: 6px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .checkbox-group label { display: flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 700; }
+    .search-input, .search-select { width: 100%; padding: 8px; border: 1px solid #94a3b8; border-radius: 6px; font-size: 12px; font-weight: bold; }
+
+    .lock-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #15803d; z-index: 10000; display: flex;
+      flex-direction: column; justify-content: center; align-items: center; color: #fff; padding: 20px;
+    }
+    .lock-box {
+      background: #fff; color: #0f172a; padding: 25px 20px;
+      border-radius: 14px; width: 90%; max-width: 360px; text-align: center;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    }
+    .lock-box h2 { font-size: 18px; margin: 0 0 10px; color: #15803d; font-weight: 900; }
     .lock-input {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin: 15px 0;
-      text-align: center;
+      width: 100%; padding: 10px; font-size: 16px; border: 1px solid #94a3b8;
+      border-radius: 8px; margin: 15px 0; text-align: center; font-weight: bold;
     }
   </style>
+
   <!-- Leaflet.js (無料の地図ライブラリ) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -424,6 +439,50 @@
     </div>
   </div>
 
+  <!-- 凡例モーダル（ポップアップ画面） -->
+  <div id="legendModal" class="modal-overlay" onclick="closeLegendModalOnBg(event)" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 15px;">
+    <div class="modal-content" style="background: #fff; width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; border-radius: 8px; padding: 15px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+      
+      <!-- 右上の×閉じるボタン -->
+      <button type="button" onclick="closeLegendModal()" style="position: absolute; top: 10px; right: 12px; background: none; border: none; font-size: 20px; font-weight: bold; color: #666; cursor: pointer;">✕</button>
+      
+      <h3 style="margin-top: 0; font-size: 15px; color: #1f3f6d; border-bottom: 2px solid #1f3f6d; padding-bottom: 6px;">📖 凡例・記号の説明</h3>
+      
+      <div id="legendBody" style="font-size: 12px; line-height: 1.6; color: #333; margin-top: 10px;">
+        <p style="margin-bottom: 12px; color: #555;">
+          記載内容は独自に調査したものであり、毎年更新予定です。<br>
+          主な記号の意味は以下の通りです。
+        </p>
+
+        <!-- 街中 -->
+        <div style="margin-bottom: 10px;">
+          <strong style="color: #1f3f6d; font-size: 13px;">【街中】</strong>
+          <ul style="margin: 4px 0 0 0; padding-left: 20px; list-style-type: disc;">
+            <li><b>○</b>：街の中心部付近に立地しています。</li>
+            <li><b>△</b>：街の周辺部又は比較的近くに建物がある立地環境です。</li>
+            <li><b>×</b>：周辺に他の建物が少ない立地環境です。</li>
+          </ul>
+        </div>
+
+        <!-- 食事及び建物の数字 -->
+        <div style="margin-bottom: 10px;">
+          <strong style="color: #1f3f6d; font-size: 13px;">【食事及び建物の数字】</strong>
+          <p style="margin: 4px 0 0 0; padding-left: 8px;">店舗数を示しています。</p>
+        </div>
+
+        <!-- ｷｯｽﾞｴﾘｱ -->
+        <div style="margin-bottom: 10px;">
+          <strong style="color: #1f3f6d; font-size: 13px;">【ｷｯｽﾞｴﾘｱ】</strong>
+          <ul style="margin: 4px 0 0 0; padding-left: 20px; list-style-type: disc;">
+            <li><b>◎</b>：専用の建物又はキッズ専用スペースが設置されています。</li>
+            <li><b>○</b>：駅の一画にキッズスペースが設置されています。</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <script src="michinoeki_data.js"></script>
 
   <script>
@@ -436,7 +495,7 @@
     ];
 
     // パスワード
-    const APP_PASSWORD = "Tokachi0155";
+    const APP_PASSWORD = "tokachi0155";
 
     /* パスワードチェック関数 */
     function checkPassword() {
@@ -879,20 +938,30 @@
       
       window.currentDisplayedStations = stations;
 
+      const container = document.getElementById('cardsContainer');
       const countBar = document.getElementById('resultCountBar');
-      countBar.style.display = 'block';
+      
+      // 描画領域を初期化
+      container.innerHTML = '';
 
-      // 1～5（件数分）のジャンプボタンを生成
+      // 1～5（件数分）のジャンプボタンを先に生成
       let jumpBtns = '';
       stations.forEach((st, idx) => {
         const num = idx + 1;
         jumpBtns += `<button type="button" onclick="document.getElementById('st_card_${num}').scrollIntoView({behavior:'smooth'})" style="padding:4px 8px; background:#1f3f6d; color:#fff; border:none; border-radius:4px; font-weight:bold; font-size:12px; cursor:pointer;">${num}. ${st.name}</button>`;
       });
 
+      // 注釈と凡例ボタン、ジャンプボタンのバナー表示
+      countBar.style.display = 'block';
       countBar.innerHTML = `
-        <div style="font-size:12px; color:#333; line-height:1.6; font-weight:normal; margin-bottom:6px;">
-          ※１ 駅名及び入浴施設をクリックすると経路を表示します。<br>
-          ※２ 営業時間・定休日は道の駅の情報ですが、時期や状況により異なる場合があります。特に★がある道の駅は、ご確認ください。
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px;">
+          <div style="font-size:12px; color:#333; line-height:1.6; font-weight:normal;">
+            ※１ 駅名及び入浴施設をクリックすると経路が表示されます。<br>
+            ※２ 営業時間・定休日は「道の駅」施設の情報ですが、時期や状況により異なる場合があります。特に★がある道の駅は、すでに情報がありますのでご確認ください。
+          </div>
+          <button type="button" onclick="openLegendModal()" style="padding:5px 10px; font-size:12px; font-weight:bold; background:#1f3f6d; color:#fff; border:none; border-radius:4px; cursor:pointer; white-space:nowrap; flex-shrink:0;">
+            📖 凡例
+          </button>
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
           <span style="font-size:12px; font-weight:bold; color:#1f3f6d;">ジャンプ:</span>
@@ -900,9 +969,7 @@
         </div>
       `;
 
-      const container = document.getElementById('cardsContainer');
-      container.innerHTML = '';
-
+      // 各駅のカードを描画
       stations.forEach((st, idx) => {
         const stLocationJson = JSON.stringify(st.location || {}).replace(/"/g, '&quot;');
         const hsLocationJson = JSON.stringify(st.hot_spring?.location || {}).replace(/"/g, '&quot;');
@@ -925,7 +992,7 @@
           hsHtml = hsName;
         }
 
-        // 各属性値の安全取得（JSON構造の違いに対応）
+        // 各属性値の安全取得
         const regYear = st.info?.registered_year || st.registered_year;
         const stampVal = st.info?.stamp || st.stamp_time;
         const hSummer = st.info?.hours_summer || st.hours_summer;
@@ -1006,7 +1073,7 @@
                 <th class="cat-blue" rowspan="3">駅情報<br>営業時間<br>定休日</th>
                 <td class="sub-lbl">登録年度</td>
                 <td colspan="2">${fmt(regYear)}</td>
-                <td class="sub-lbl">スタンプ押印</td>
+                <td class="sub-lbl">スタンプ</td>
                 <td colspan="2">${fmt(stampVal)}</td>
               </tr>
               <tr>
@@ -1037,7 +1104,7 @@
                 <td>${fmt(mOutside)}</td>
                 <td class="sub-lbl">外屋台</td>
                 <td>${fmt(mStall)}</td>
-                <td class="sub-lbl">ソフトクリーム</td>
+                <td class="sub-lbl">ｿﾌﾄｸﾘｰﾑ</td>
                 <td>${fmt(sSoft)}</td>
               </tr>
 
@@ -1057,15 +1124,15 @@
                 <th class="cat-blue">通信</th>
                 <td class="sub-lbl">Wi-Fi</td>
                 <td>${fmt(tWifi)}</td>
-                <td class="sub-lbl">クレジット</td>
+                <td class="sub-lbl">ｸﾚｼﾞｯﾄ</td>
                 <td>${fmt(tCard)}</td>
-                <td class="sub-lbl">QRコード</td>
+                <td class="sub-lbl">QR等</td>
                 <td>${fmt(tQr)}</td>
               </tr>
 
-              <!-- 10-11行目：施設 -->
+              <!-- 10-12行目：施設 -->
               <tr>
-                <th class="cat-blue" rowspan="2">施設</th>
+                <th class="cat-blue" rowspan="3">施設</th>
                 <td class="sub-lbl">案内所</td>
                 <td>${fmt(fInfo)}</td>
                 <td class="sub-lbl">内休憩</td>
@@ -1076,29 +1143,21 @@
               <tr>
                 <td class="sub-lbl">授乳専用</td>
                 <td>${fmt(fNursing)}</td>
-                <td class="sub-lbl">キッズエリア</td>
+                <td class="sub-lbl">ｷｯｽﾞｴﾘｱ</td>
                 <td>${fmt(fKids)}</td>
-                <td colspan="2" style="background-color:#fff;"></td>
-              </tr>
-
-              <!-- 12-13行目：付属施設 -->
-              <tr>
-                <th class="cat-blue" rowspan="2">付属施設</th>
                 <td class="sub-lbl">ホテル</td>
                 <td>${fmt(aHotel)}</td>
-                <td class="sub-lbl">公園</td>
-                <td>${fmt(aPark)}</td>
-                <td colspan="2" style="background-color:#fff;"></td>
               </tr>
               <tr>
-                <td class="sub-lbl">パークゴルフ</td>
+                <td class="sub-lbl">公園</td>
+                <td>${fmt(aPark)}</td>
+                <td class="sub-lbl">ﾊﾟｰｸｺﾞﾙﾌ</td>
                 <td>${fmt(aGolf)}</td>
-                <td class="sub-lbl">ドッグラン</td>
+                <td class="sub-lbl">ﾄﾞｯｸﾞﾗﾝ</td>
                 <td>${fmt(aDog)}</td>
-                <td colspan="2" style="background-color:#fff;"></td>
               </tr>
 
-              <!-- 14行目：最寄入浴 -->
+              <!-- 13行目：最寄入浴 -->
               <tr>
                 <th class="cat-blue">最寄入浴</th>
                 <td class="sub-lbl">距離</td>
@@ -1107,7 +1166,7 @@
                 <td colspan="3" style="text-align:left; padding:0 6px;">${hsHtml}</td>
               </tr>
 
-              <!-- 15行目：その他 -->
+              <!-- 14行目：その他 -->
               <tr>
                 <th class="cat-blue">その他</th>
                 <td colspan="4" style="text-align:left; padding:0 8px;">${fmt(st.other)}</td>
@@ -1125,6 +1184,21 @@
         `;
         container.innerHTML += blockWithTopLink;
       });
+    }
+
+    // 凡例モーダルの開閉関数
+    function openLegendModal() {
+      document.getElementById('legendModal').style.display = 'flex';
+    }
+
+    function closeLegendModal() {
+      document.getElementById('legendModal').style.display = 'none';
+    }
+
+    function closeLegendModalOnBg(event) {
+      if (event.target.id === 'legendModal') {
+        closeLegendModal();
+      }
     }
 
     initData();
