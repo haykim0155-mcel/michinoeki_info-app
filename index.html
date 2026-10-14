@@ -268,9 +268,19 @@
     </div>
   </div>
 
-  <!-- 選び直しボタン -->
+  <!-- 選び直し ＆ 凡例ボタンエリア -->
   <div id="reopenBtn" style="display: none; max-width: 650px; margin: 0 auto 15px;">
-    <button class="btn" onclick="toggleSelector(true)">🔍 選び直す（検索画面を開く）</button>
+    <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
+      <!-- 選び直すボタン (約80%幅) -->
+      <button class="btn" onclick="toggleSelector(true)" style="flex: 4; margin: 0;">
+        🔍 選び直す（検索画面を開く）
+      </button>
+      
+      <!-- 凡例ボタン (約20%幅) -->
+      <button type="button" onclick="openLegendModal()" style="flex: 1; padding: 12px 8px; font-size: 13px; font-weight: 900; background: #1e3a8a; color: #fff; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 10px rgba(30, 58, 138, 0.3); text-align: center;">
+        📖 凡例
+      </button>
+    </div>
   </div>
 
   <!-- メイン選択エリア -->
@@ -951,20 +961,15 @@
         jumpBtns += `<button type="button" onclick="document.getElementById('st_card_${num}').scrollIntoView({behavior:'smooth'})" style="padding:4px 8px; background:#1f3f6d; color:#fff; border:none; border-radius:4px; font-weight:bold; font-size:12px; cursor:pointer;">${num}. ${st.name}</button>`;
       });
 
-      // 注釈と凡例ボタン、ジャンプボタンのバナー表示
+      // 注釈バナーとジャンプボタン表示（凡例ボタンは上部に移動したため削除）
       countBar.style.display = 'block';
       countBar.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:10px;">
-          <div style="font-size:12px; color:#333; line-height:1.6; font-weight:normal;">
-            ※１ 駅名及び入浴施設をクリックすると経路が表示されます。<br>
-            ※２ 営業時間・定休日は「道の駅」施設の情報ですが、時期や状況により異なる場合があります。特に★がある道の駅は、すでに情報がありますのでご確認ください。
-          </div>
-          <button type="button" onclick="openLegendModal()" style="padding:5px 10px; font-size:12px; font-weight:bold; background:#1f3f6d; color:#fff; border:none; border-radius:4px; cursor:pointer; white-space:nowrap; flex-shrink:0;">
-            📖 凡例
-          </button>
+        <div style="font-size:12px; color:#333; line-height:1.5; font-weight:normal; margin-bottom:8px;">
+          ※１ 駅名及び入浴施設をクリックすると経路が表示されます。<br>
+          ※２ 営業時間・定休日は「道の駅」施設の情報ですが、時期や状況により異なる場合があります。特に★がある道の駅は、すでに情報がありますのでご確認ください。
         </div>
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-          <span style="font-size:12px; font-weight:bold; color:#1f3f6d;">ジャンプ:</span>
+          <span style="font-size:12px; font-weight:900; color:#1b4332;">ジャンプ:</span>
           ${jumpBtns}
         </div>
       `;
@@ -1053,7 +1058,7 @@
                     </span>
                     
                     <!-- 右側：北の道の駅 リンクボタン -->
-                    ${ (st.url_id || st.official_url_id) ? '<a href="https://hokkaido-michinoeki.jp/michinoeki/' + (st.url_id || st.official_url_id) + '/" target="_blank" rel="noopener noreferrer" style="color: #2b5797; text-decoration: underline; font-weight: bold; font-size: 11px; white-space: nowrap;">🌐 北の道の駅を開く</a>' : '' }
+                    ${ (st.url_id || st.official_url_id) ? '<a href="https://hokkaido-michinoeki.jp/michinoeki/' + (st.url_id || st.official_url_id) + '/" target="_blank" rel="noopener noreferrer" style="color: #2b5797; text-decoration: underline; font-weight: bold; font-size: 11px; white-space: nowrap;">🌐 北の道の駅</a>' : '' }
                   </div>
                 </td>
               </tr>
